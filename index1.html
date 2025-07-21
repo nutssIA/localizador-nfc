@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obtendo Localização...</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; margin: 0; }
+        .container { text-align: center; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        p { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Processando...</h1>
+        <p>Aguarde um momento enquanto obtemos sua localização para registrar o ponto.</p>
+    </div>
+
+    <script>
+        // ##############################################################
+        // ## COLE A URL DO SEU WEBHOOK DO MAKE.COM AQUI DENTRO DAS ASPAS ##
+        // ##############################################################
+        const webhookUrl = "https://hook.us2.make.com/rl6ous6fzisob4zk3gn8kj18j4gfru3u";
+
+
+        // Função para lidar com o sucesso na obtenção da localização
+        function locationSuccess(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Monta a URL final com os parâmetros de query
+            const finalUrl = `${webhookUrl}?lat=${lat}&lon=${lon}&accuracy=${accuracy}`;
+
+            // Envia os dados para o webhook e redireciona o usuário
+            fetch(finalUrl)
+                .then(response => {
+                    // Após o envio, redireciona o usuário para uma página de sucesso
+                    window.location.href = "https://make.com/en/success-page-examples"; // Ou qualquer outra página
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar para o webhook:', error);
+                    document.querySelector('h1').innerText = 'Erro!';
+                    document.querySelector('p').innerText = 'Não foi possível contatar o servidor. Tente novamente.';
+                });
+        }
+
+        // Função para lidar com erros
+        function locationError() {
+            alert("Não foi possível obter sua localização. Por favor, habilite o serviço de localização no seu navegador e tente novamente.");
+            document.querySelector('h1').innerText = 'Falha na Permissão';
+            document.querySelector('p').innerText = 'A permissão de acesso à localização é necessária.';
+        }
+
+        // Função principal que é executada quando a página carrega
+        window.onload = () => {
+            if (!navigator.geolocation) {
+                alert("Geolocalização não é suportada por este navegador.");
+            } else {
+                navigator.geolocation.getCurrentPosition(locationSuccess, locationError, {
+                    enableHighAccuracy: true, // Pede a localização mais precisa possível
+                    timeout: 10000,           // Tempo máximo de espera de 10 segundos
+                    maximumAge: 0             // Não usar cache de localização
+                });
+            }
+        };
+    </script>
+</body>
+</html>
